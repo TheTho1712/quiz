@@ -25,8 +25,14 @@ app.use(
         secret: 'quiz_app_secret',
         resave: false,
         saveUninitialized: true,
+        cookie: { maxAge: 3600000},
     }),
 );
+
+app.use((req, res, next) => {
+    res.locals.currentUser = req.session.user || null;
+    next();
+});
 
 const db = require('./config/db');
 const mongoose = require('./util/mongoose');

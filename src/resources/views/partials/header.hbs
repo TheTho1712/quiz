@@ -4,12 +4,30 @@
             <a href="/" class="navbar-brand">Quiz App</a>
         </div>
         <div class="header-actions d-flex gap-2">
-            <a href="/quiz/create" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Thêm quiz
-            </a>
-            <a href="/quiz/list" class="btn btn-primary">
-                <i class="fa-solid fa-list"></i> Danh sách
-            </a>
+            {{#if currentUser}}
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: transparent; border: none; color: #333; box-shadow: none;">
+                        <img src="{{currentUser.avatar}}" class="rounded-circle me-2" alt="Avatar" style="width: 40px; height: 40px; object-fit: cover;"> 
+                        {{currentUser.username}}
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/quiz/create">
+                            <i class="fas fa-plus"></i> Thêm quiz</a>
+                        </li>
+                        <li><a class="dropdown-item" href="/quiz/list">
+                            <i class="fas fa-list"></i> Danh sách quiz</a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                        </li>
+                    </ul>
+                </div>
+            {{else}}
+                <a href="/login" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                </a>
+            {{/if}}
         </div>
     </div>
 </header>

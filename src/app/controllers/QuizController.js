@@ -26,7 +26,7 @@ class QuizController {
             await quiz.save();
             
             req.session.successMessage = 'Quiz đã được tạo thành công!';
-            res.redirect('/');
+            res.redirect('/quiz/list');
         } catch(err){
             res.render('crud/create', {
                 errorMessage: 'Đã có lỗi xảy ra khi tạo quiz. Vui lòng thử lại.',
