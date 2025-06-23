@@ -1,0 +1,49 @@
+<div class="container mt-4">
+    <h2 class="mb-4">Danh sách Quiz đã xóa</h2>
+    <a href="/quiz/list">
+        <i class="fa-solid fa-book"></i> Quay lại danh sách
+    </a>
+    {{#if quizzes.length}}
+        <table class="table table-bordered table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>Tên Quiz</th>
+                    <th>Độ khó</th>
+                    <th>Rating</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each quizzes}}
+                    <tr>
+                        <td>{{this.name}}</td>
+                        <td>
+                            <span class="badge bg-{{#ifEquals this.difficulty 'easy'}}success{{else}}{{#ifEquals this.difficulty 'medium'}}warning{{else}}danger{{/ifEquals}}{{/ifEquals}}">
+                                {{this.difficulty}}
+                            </span>
+                        </td>
+                        <td>
+                            <i class="fas fa-star text-warning"></i> {{this.rating}}
+                        </td>
+                        <td>
+                            <form action="/quiz/restore/{{this._id}}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="fas fa-undo"></i> Khôi phục
+                                </button>
+                            </form>
+                            <form action="/quiz/force-delete/{{this._id}}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-times"></i> Xóa vĩnh viễn
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    {{else}}
+        <div class="alert alert-info">
+            Không có quiz nào đã bị xóa.
+        </div>
+    {{/if}}
+</div>

@@ -1,0 +1,205 @@
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2>Tạo Quiz mới</h2>
+        </div>
+        <div class="card-body">
+            <form id="quizForm" action="/quiz/store" method="POST" enctype="multipart/form-data">
+                <div class="mb-4">
+                    <h4>Thông tin quiz</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Tên Quiz <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="image" class="form-label"> Ảnh Quiz</label>
+                            <input type="file" class="form-control" id="image" name="image" placeholder="Chọn hình ảnh" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="duration" class="form-label">Thời gian (phút)</label>
+                            <input type="number" class="form-control" id="duration" name="duration" min="1" value="10">
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="difficulty" class="form-label">Độ khó</label>
+                            <select class="form-select" id="difficulty" name="difficulty">
+                                <option value="easy">Dễ</option>
+                                <option value="medium" selected>Trung bình</option>
+                                <option value="hard">Khó</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="genre" class="form-label">Thể loại</label>
+                            <input type="text" class="form-control" id="genre" name="genre" placeholder="Nhập thể loại ">
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="mb-4">
+                    <h4 class="d-flex justify-content-between align-items-center">
+                        Câu hỏi
+                        <button type="button" class="btn btn-success" id="addQuestionBtn">
+                            <i class="fas fa-plus"></i> Thêm câu hỏi
+                        </button>
+                    </h4>
+                    
+                    <div id="questionsContainer">
+                        <div class="card mb-3 question-card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="question-number">Câu hỏi 1</h5>
+                                <button type="button" class="btn btn-danger btn-sm remove-question">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Câu hỏi <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="questions[0][questionText]" required>
+                                </div>
+
+                                <div class="options-container">
+                                    <div class="mb-3">
+                                        <label class="form-label">Lựa chọn A <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="questions[0][options][]" required>
+                                            <div class="input-group-text">
+                                                <input class="form-check-input" type="radio" name="questions[0][correctAnswer]" value="0" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Lựa chọn B <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="questions[0][options][]" required>
+                                            <div class="input-group-text">
+                                                <input class="form-check-input" type="radio" name="questions[0][correctAnswer]" value="1">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Lựa chọn C <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="questions[0][options][]" required>
+                                            <div class="input-group-text">
+                                                <input class="form-check-input" type="radio" name="questions[0][correctAnswer]" value="2">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Lựa chọn D <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="questions[0][options][]" required>
+                                            <div class="input-group-text">
+                                                <input class="form-check-input" type="radio" name="questions[0][correctAnswer]" value="3">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="/" class="btn btn-secondary me-md-2">Hủy</a>
+                    <button type="submit" class="btn btn-primary">Lưu Quiz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        const addQuestionBtn = document.getElementById('addQuestionBtn');
+        const questionsContainer = document.getElementById('questionsContainer');
+        
+        function updateQuestionNumbers(){
+            document.querySelectorAll('.question-card').forEach((card, index) => {
+                card.querySelector('.question-number').textContent = `Câu hỏi ${index + 1}`;
+                
+                const inputs = card.querySelectorAll('input[name^="questions["]');
+                inputs.forEach(input => {
+                    const name = input.getAttribute('name');
+                    const newName = name.replace(/questions\[\d+\]/, `questions[${index}]`);
+                    input.setAttribute('name', newName);
+                });
+                
+                const radios = card.querySelectorAll('input[type="radio"]');
+                radios.forEach(radio => {
+                    radio.setAttribute('name', `questions[${index}][correctAnswer]`);
+                });
+            });
+        }
+        
+        addQuestionBtn.addEventListener('click', function(){
+            const questionCards = document.querySelectorAll('.question-card');
+            const newIndex = questionCards.length;
+            
+            const newQuestionCard = document.querySelector('.question-card').cloneNode(true);
+            
+            newQuestionCard.querySelectorAll('input[type="text"]').forEach(input => {
+                input.value = '';
+            });
+            
+            newQuestionCard.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            questionsContainer.appendChild(newQuestionCard);
+            updateQuestionNumbers();
+            
+            newQuestionCard.querySelector('.remove-question').addEventListener('click', function(){
+                if(document.querySelectorAll('.question-card').length > 1){
+                    this.closest('.question-card').remove();
+                    updateQuestionNumbers();
+                } else {
+                    notyf.error('Quiz phải có ít nhất một câu hỏi!');
+                }
+            });
+        });
+        
+        document.querySelectorAll('.remove-question').forEach(button => {
+            button.addEventListener('click', function() {
+                if(document.querySelectorAll('.question-card').length > 1){
+                    this.closest('.question-card').remove();
+                    updateQuestionNumbers();
+                } else {
+                    notyf.error('Quiz phải có ít nhất một câu hỏi!');
+                }
+            });
+        });
+        
+        document.getElementById('quizForm').addEventListener('submit', function(e){
+            document.querySelectorAll('.question-card').forEach((card, index) => {
+                const correctAnswerRadio = card.querySelector('input[type="radio"]:checked');
+                if(correctAnswerRadio){
+                    const optionIndex = correctAnswerRadio.value;
+                    const optionValue = card.querySelectorAll('input[name$="[options][]"]')[optionIndex].value;
+                    
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = `questions[${index}][correctAnswerText]`;
+                    hiddenInput.value = optionValue;
+                    card.appendChild(hiddenInput);
+                }
+            });
+        });
+    });
+</script>

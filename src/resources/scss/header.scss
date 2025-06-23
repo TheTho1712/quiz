@@ -1,0 +1,18 @@
+.quiz-header {
+    padding: 15px 0;
+    top: 0;
+    z-index: 100;
+
+    .logo {
+        a {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            text-decoration: none;
+            
+            &:hover {
+                color: #007bff;
+            }
+        }
+    }
+}

@@ -1,0 +1,8 @@
+.vscode
+
+/node_modules
+
+source/public/css
+node_modules/
+
+.env

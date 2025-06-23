@@ -1,0 +1,47 @@
+<div class="container mt-4">
+    <h2 class="mb-4">Danh sách Quiz đã đăng</h2>
+    <a href="/quiz/deleted-list">
+        <i class="fas fa-trash"></i> Quiz đã xóa
+    </a>
+    {{#if quizzes.length}}
+        <table class="table table-bordered table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>Tên Quiz</th>
+                    <th>Độ khó</th>
+                    <th>Rating</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each quizzes}}
+                    <tr>
+                        <td>{{this.name}}</td>
+                        <td>
+                            <span class="badge bg-{{#ifEquals this.difficulty 'easy'}}success{{else}}{{#ifEquals this.difficulty 'medium'}}warning{{else}}danger{{/ifEquals}}{{/ifEquals}}">
+                                {{this.difficulty}}
+                            </span>
+                        </td>
+                        <td>
+                            <i class="fas fa-star text-warning"></i> {{this.rating}}
+                        </td>
+                        <td>
+                            <a href="/quiz/edit/{{this._id}}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Chỉnh sửa
+                            </a>
+                            <form action="/quiz/delete/{{this._id}}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    {{else}}
+        <div class="alert alert-info">
+            Không có quiz nào được đăng.
+        </div>
+    {{/if}}
+</div>

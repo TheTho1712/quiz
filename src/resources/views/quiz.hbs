@@ -1,0 +1,158 @@
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 id="quizName"></h3>
+            <div>
+                <span class="badge bg-warning">Câu <span id="currentQuestion">1</span> / <span id="totalQuestions">0</span></span>
+                <span class="badge bg-info ms-2"><i class="fas fa-check-circle"></i> Đúng: <span id="correctCount">0</span>/<span id="totalQuestionsCount">0</span></span>
+            </div>
+        </div>
+        <div class="card-body">
+            <form id="quizForm" method="POST">
+                <input type="hidden" name="correctCount" id="correctCountInput" value="0">
+                <input type="hidden" name="totalQuestions" id="totalQuestionsInput" value="0">
+
+                <div class="question-container">
+                    <h4 class="mb-4" id="questionText"></h4>
+                    
+                    <div class="options-container" id="optionsContainer"></div>
+                </div>
+
+                <div id="feedback" class="alert mt-3" style="display: none;"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .option-card {
+        margin-bottom: 1rem;
+        cursor: pointer;
+    }
+
+    .option-card .card {
+        transition: all 0.3s ease;
+    }
+
+    .option-card:hover .card {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .correct-answer {
+        border: 2px solid #28a745 !important;
+        background-color: rgba(40, 167, 69, 0.1) !important;
+    }
+
+    .wrong-answer {
+        border: 2px solid #dc3545 !important;
+        background-color: rgba(220, 53, 69, 0.1) !important;
+    }
+</style>
+
+<script>
+    let quizData = null;
+    let currentQuestionIndex = 0;
+    let correctCount = 0;
+    let questionAnswered = false;
+    
+    document.addEventListener('DOMContentLoaded', function(){
+        loadQuizData();
+    });
+
+    async function loadQuizData(){
+        try {
+            const quizId = "{{quizId}}";
+            const response = await fetch(`/quizzes/${quizId}/data`);
+            quizData = await response.json();
+            
+            initializeQuiz();
+            displayQuestion(currentQuestionIndex);
+        } catch(error){
+            next(error);
+        }
+    }
+
+    function initializeQuiz(){
+        document.getElementById('quizName').textContent = quizData.name;
+        document.getElementById('totalQuestions').textContent = quizData.questions.length;
+        document.getElementById('totalQuestionsCount').textContent = quizData.questions.length;
+        document.getElementById('totalQuestionsInput').value = quizData.questions.length;
+        document.getElementById('quizForm').action = `/quizzes/${quizData._id}/submit`;
+    }
+
+    function displayQuestion(index){
+        if(!quizData || !quizData.questions || index >= quizData.questions.length) return;
+        
+        const question = quizData.questions[index];
+        questionAnswered = false;
+        
+        document.getElementById('currentQuestion').textContent = index + 1;
+        
+        document.getElementById('questionText').textContent = question.questionText;
+        
+        const optionsContainer = document.getElementById('optionsContainer');
+        optionsContainer.innerHTML = '';
+        
+        question.options.forEach((option, optIndex) => {
+            const isCorrect = option === question.correctAnswer;
+            
+            const optionCard = document.createElement('div');
+            optionCard.className = 'option-card';
+            optionCard.dataset.correct = isCorrect;
+            optionCard.dataset.option = option;
+            
+            optionCard.innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        ${option}
+                    </div>
+                </div>
+            `;
+            
+            optionCard.addEventListener('click', function(){
+                if(questionAnswered) return;
+                handleOptionClick(this, isCorrect);
+            });
+            
+            optionsContainer.appendChild(optionCard);
+        });
+    }
+
+    function handleOptionClick(optionElement, isCorrect){
+        questionAnswered = true;
+        const feedbackElement = document.getElementById('feedback');
+        
+        if(isCorrect){
+            correctCount++;
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('correctCountInput').value = correctCount;
+            
+            feedbackElement.className = 'alert alert-success mt-3';
+            feedbackElement.style.display = 'block';
+            feedbackElement.innerHTML = '<strong>Chính xác!</strong>';
+            
+            optionElement.querySelector('.card').classList.add('correct-answer');
+        } else {
+            feedbackElement.className = 'alert alert-danger mt-3';
+            feedbackElement.style.display = 'block';
+            feedbackElement.innerHTML = '<strong>Sai rồi!</strong>';
+            
+            optionElement.querySelector('.card').classList.add('wrong-answer');
+            
+            document.querySelectorAll('.option-card[data-correct="true"]').forEach(correctOption => {
+                correctOption.querySelector('.card').classList.add('correct-answer');
+            });
+        }
+        
+        setTimeout(() => {
+            if (currentQuestionIndex < quizData.questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion(currentQuestionIndex);
+                feedbackElement.style.display = 'none';
+            } else {
+                document.getElementById('quizForm').submit();
+            }
+        }, 2000);
+    }
+</script>
