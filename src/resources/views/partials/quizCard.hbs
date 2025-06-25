@@ -1,0 +1,94 @@
+<div class="col">
+  <div class="card h-100 quiz-card">
+    <div class="quiz-img-container position-relative">
+      {{#if this.image}}
+        <img src="{{this.image}}" class="card-img-top" alt="{{this.name}}">
+      {{else}}
+        <img src="/img/default-quiz.png" class="card-img-top" alt="Quiz Default Image">
+      {{/if}}
+
+      <div class="play-button-overlay">
+        <a href="/quizzes/{{this._id}}" class="play-now-btn">Play Now</a>
+      </div>
+    </div>
+
+    <div class="card-body p-2">
+      <h5 class="card-title mb-1">{{this.name}}</h5>
+      <div class="d-flex align-items-center">
+        <span class="rating me-2">{{this.rating}} <i class="fas fa-star"></i></span>
+        <span class="author">By {{this.author}}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.quiz-card {
+  border-radius: 12px !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.quiz-card .card-body {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.quiz-img-container {
+  background-color: #000;
+  height: 180px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  border-radius: 12px;
+}
+
+.quiz-img-container img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+  display: block;
+}
+
+.play-button-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.play-now-btn {
+  background-color: #FFB74D;
+  color: #000;
+  font-weight: bold;
+  padding: 8px 30px;
+  border-radius: 25px;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.quiz-card:hover .play-now-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.rating {
+  color: #FFA000;
+  font-weight: 500;
+}
+
+.author {
+  color: #757575;
+  font-size: 0.9rem;
+}
+</style>

@@ -4,13 +4,17 @@ const { mongooseToObject, multipleMongooseToObject } = require('../../util/mongo
 class HomeController {
     async index(req, res){
         try {
-            const quizzes = await Quiz.find({ deleted: false });
-            const successMessage = req.session.successMessage;
-            delete req.session.successMessage;
+            // const quizzes = await Quiz.find({ deleted: false });
+
+            const recentlyPublished = await Quiz.find({ deleted: false }).sort({ createdAt: -1 }).limit(5);
+            const rating = await Quiz.find({ deleted: false }).sort({ rating: -1 }).limit(5);
 
             res.render('home', {
-                quizzes: multipleMongooseToObject(quizzes),
-                successMessage: successMessage,
+                recentlyPublished,
+                rating,
+                // quizzes: multipleMongooseToObject(quizzes),
+                // successMessage: res.locals.successMessage,
+                // errorMessage: res.locals.errorMessage,
             });
         } catch(err){
             res.render('home', { errorMessage: 'Đã xảy ra lỗi khi lấy danh sách quiz.' });

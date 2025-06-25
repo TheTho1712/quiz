@@ -31,6 +31,10 @@ app.use(
 
 app.use((req, res, next) => {
     res.locals.currentUser = req.session.user || null;
+    res.locals.errorMessage = req.session.errorMessage;
+    res.locals.successMessage = req.session.successMessage;
+    delete req.session.errorMessage;
+    delete req.session.successMessage;
     next();
 });
 

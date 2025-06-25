@@ -1,39 +1,16 @@
 <div class="container mt-4">
-    {{#if quizzes.length}}
-        <div class="row row-cols-lg-3 g-4">
-            {{#each quizzes}}
-                <div class="col">
-                    <div class="card h-100">
-                        {{#if this.image}}
-                            <img src="{{this.image}}" class="card-img-top" alt="{{this.name}}">
-                        {{else}}
-                            <img src="/img/default-quiz.png" class="card-img-top" alt="Quiz Default Image">
-                        {{/if}}
-                        <div class="card-body">
-                            <h5 class="card-title">{{this.name}}</h5>
-                            <p class="card-text">{{this.description}}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="badge bg-{{#ifEquals this.difficulty 'easy'}}success{{else}}{{#ifEquals this.difficulty 'medium'}}warning{{else}}danger{{/ifEquals}}{{/ifEquals}}">
-                                    {{this.difficulty}}
-                                </div>
-                                <div>
-                                    <i></i> {{this.genre}}
-                                </div>
-                                <div>
-                                    <i class="fas fa-star text-warning"></i> {{this.rating}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <a href="/detail/{{this._id}}" class="btn btn-primary w-100">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-            {{/each}}
-        </div>
-    {{else}}
-        <div class="alert alert-info">
-            Không có quiz nào. Hãy <a href="/quiz/create">thêm một quiz mới</a>.
-        </div>
-    {{/if}}
+    <h3>Quiz mới</h3>
+    <div class="row row-cols-lg-3 g-4 mb-5">
+        {{#each recentlyPublished}}
+            {{> quizCard this}}
+        {{/each}}
+    </div>
+
+    <h3>Best Rating</h3>
+    <div class="row row-cols-lg-3 g-4 mb-5">
+        {{#each rating}}
+            {{> quizCard this}}
+        {{/each}}
+    </div>
+
 </div>

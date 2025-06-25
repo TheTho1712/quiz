@@ -5,6 +5,7 @@ const QuizSchema = new mongoose.Schema({
     description: { type: String },
     rating: { type: Number, default: 0 },
     image: { type: String },
+    author: { type: String },
     questions: [{
         questionText: { type: String, required: true },
         options: [{ type: String, required: true }],

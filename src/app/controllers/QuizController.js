@@ -13,6 +13,10 @@ class QuizController {
                 formData.image = '/img/' + req.file.filename;
             }
 
+            if(req.session.user){
+                formData.author = req.session.user.username;
+            }
+
             if(formData.questions){
                 formData.questions.forEach(question => {
                     if (question.correctAnswerText) {
