@@ -41,7 +41,8 @@ class QuizController {
 
     async list(req, res){
         try {
-            const quizzes = await Quiz.find({ deleted: false });
+            const currentUsername = req.session.user.username;
+            const quizzes = await Quiz.find({ author: currentUsername, deleted: false });
             const successMessage = req.session.successMessage;
             delete req.session.successMessage;
             res.render('list', {
@@ -121,7 +122,8 @@ class QuizController {
 
     async deletedList(req, res){
         try {
-            const quizzes = await Quiz.find({ deleted: true });
+            const currentUsername = req.session.user.username;
+            const quizzes = await Quiz.find({ author: currentUsername, deleted: true });
             res.render('deleted', {
                 quizzes: quizzes.map(quiz => quiz.toObject()),
             });

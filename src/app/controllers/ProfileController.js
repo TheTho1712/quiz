@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
+const QuizHistory = require('../models/QuizHistory');
 
 class ProfileController{
 
@@ -27,6 +28,7 @@ class ProfileController{
             req.session.user = {
                 _id: user._id,
                 username: user.username,
+                fullname: user.fullname,
                 email: user.email,
                 avatar: user.avatar,
                 role: user.role,
@@ -89,6 +91,30 @@ class ProfileController{
                 }
                 res.clearCookie('connect.sid');
                 res.redirect('/');
+            });
+        } catch(err){
+            console.error(err);
+            res.redirect('/');
+        }
+    }
+
+    async profile(req, res){
+        if(!req.session.user){
+            return res.redirect('/login');
+        }
+        try {
+            const user = await User.findById(req.session.user._id).lean();
+            const quizHistory = await QuizHistory.find({ user: user._id })
+                .populate({
+                    path: 'quiz',
+                    select: 'name rating author'
+                })
+                .sort({ completedAt: -1 })
+                .lean();
+
+            res.render('accounts/profile', {
+                currentUser: user,
+                quizHistory
             });
         } catch(err){
             console.error(err);

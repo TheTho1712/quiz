@@ -27,4 +27,42 @@
             </div>
         </div>
     </div>
+    <div class="mt-4">
+        <div class="d-flex align-items-center mb-3">
+            <input type="checkbox" id="showQuestions" class="form-check-input me-2">
+            <label for="showQuestions" class="form-check-label">Hiển thị câu hỏi</label>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            {{#each quiz.questions}}
+                <div class="col">
+                    <div class="card question-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title question-text">{{cong @index}}. {{this.questionText}}</h5>
+                            <div class="answers-container">
+                                {{#each this.options}}
+                                    <div class="answer-option mb-2">
+                                        <span class="option-text">{{this}}</span>
+                                    </div>
+                                {{/each}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        const showQuestionsCheckbox = document.getElementById('showQuestions');
+        const questionTexts = document.querySelectorAll('.question-text');
+        
+        showQuestionsCheckbox.addEventListener('change', function(){
+            questionTexts.forEach(question => {
+                question.style.filter = this.checked ? 'none' : 'blur(5px)';
+            });
+        });
+    });
+</script>

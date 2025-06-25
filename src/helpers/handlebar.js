@@ -5,5 +5,5 @@ module.exports = {
 
     cong: function(value){
         return parseInt(value) + 1;
-    }
+    },
 };

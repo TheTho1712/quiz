@@ -1,0 +1,74 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <img src="{{currentUser.avatar}}" class="rounded-circle mb-3" alt="Avatar" style="width: 100px; height: 100px; object-fit: cover;">
+                    <h5>{{currentUser.fullname}}</h5>
+                    <p>{{currentUser.role}}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" id="history-tab" data-bs-toggle="tab" href="#history">Lịch sử làm quiz</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="info-tab" data-bs-toggle="tab" href="#info">Thông tin cá nhân</a>
+                </li>
+            </ul>
+            <div class="tab-content mt-3">
+                <div class="tab-pane fade show active" id="history">
+                    {{#if quizHistory.length}}
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Tên Quiz</th>
+                                    <th>Rating</th>
+                                    <th>Tác giả</th>
+                                    <th>Số câu đúng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each quizHistory}}
+                                    <tr>
+                                        <td>{{this.quiz.name}}</td>
+                                        <td><i class="fas fa-star text-warning"></i> {{this.quiz.rating}}</td>
+                                        <td>{{this.quiz.author}}</td>
+                                        <td>{{this.correctCount}}/{{this.totalQuestions}}</td>
+                                    </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                    {{else}}
+                        <p>Bạn chưa làm bài Quiz nào!!!</p>
+                    {{/if}}
+                </div>
+
+                <div class="tab-pane fade" id="info">
+                    <form method="POST" action="/account/update">
+                        <div class="mb-3">
+                            <label for="fullname" class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" id="fullname" name="fullname" value="{{currentUser.fullname}}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{currentUser.email}}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gender" class="form-label">Giới tính</label>
+                            <select class="form-select" id="gender" name="gender">
+                                <option value="male" {{#ifEquals currentUser.gender 'male'}}selected{{/ifEquals}}>Nam</option>
+                                <option value="female" {{#ifEquals currentUser.gender 'female'}}selected{{/ifEquals}}>Nữ</option>
+                                <option value="other" {{#ifEquals currentUser.gender 'other'}}selected{{/ifEquals}}>Khác</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

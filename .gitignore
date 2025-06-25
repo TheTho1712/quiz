@@ -6,3 +6,5 @@ source/public/css
 node_modules/
 
 .env
+
+.addQuiz.js

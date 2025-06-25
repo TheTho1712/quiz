@@ -1,11 +1,12 @@
 const Quiz = require('../models/Quiz');
+const QuizHistory = require('../models/QuizHistory');
 const { mongooseToObject, multipleMongooseToObject } = require('../../util/mongoose');
 
 class HomeController {
     async index(req, res){
         try {
-            const recentlyPublished = await Quiz.find({ deleted: false }).sort({ createdAt: -1 }).limit(5);
-            const rating = await Quiz.find({ deleted: false }).sort({ rating: -1 }).limit(5);
+            const recentlyPublished = await Quiz.find({ deleted: false }).sort({ createdAt: -1 }).limit(6);
+            const rating = await Quiz.find({ deleted: false }).sort({ rating: -1 }).limit(6);
 
             res.render('home', {
                 recentlyPublished,
@@ -75,12 +76,24 @@ class HomeController {
         try {
             const correctCount = req.body.correctCount || 0;
             const totalQuestions = req.body.totalQuestions || 0;
-            
+
+            const quiz = await Quiz.findById(req.params.id);
+            if(!quiz){
+                return res.status(404).render('error', { errorMessage: 'Quiz không tồn tại' });
+            }
+            await QuizHistory.create({
+                user: req.session.user._id,
+                quiz: quiz._id,
+                correctCount: correctCount,
+                totalQuestions: totalQuestions,
+            });
+
             res.render('quiz-result', { 
                 correctCount: correctCount,
                 totalQuestions: totalQuestions,
             });
         } catch(err){
+            console.error(err);
             res.render('quiz-result', { errorMessage: 'Đã xảy ra lỗi khi nộp quiz.' });
         }
     }
