@@ -4,8 +4,16 @@
             <div class="card">
                 <div class="card-body text-center">
                     <img src="{{currentUser.avatar}}" class="rounded-circle mb-3" alt="Avatar" style="width: 100px; height: 100px; object-fit: cover;">
-                    <h5>{{currentUser.fullname}}</h5>
-                    <p>{{currentUser.role}}</p>
+                    <h5>{{currentUser.username}}</h5>
+                    <div class="role-area">
+                        <div class="role-icon">
+                            {{#ifEquals currentUser.role 'admin'}}
+                                <i class="fa-solid fa-shield-halved"></i>
+                            {{else ifEquals currentUser.role 'user'}}
+                                <i class="fa-solid fa-user"></i>
+                            {{/ifEquals}}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -38,6 +46,11 @@
                                         <td><i class="fas fa-star text-warning"></i> {{this.quiz.rating}}</td>
                                         <td>{{this.quiz.author}}</td>
                                         <td>{{this.correctCount}}/{{this.totalQuestions}}</td>
+                                        <td>
+                                            <a href="/quiz/history/{{this._id}}" class="btn btn-info btn-sm">
+                                                <i class="fas fa-eye"></i> Xem đáp án
+                                            </a>
+                                        </td>
                                     </tr>
                                 {{/each}}
                             </tbody>
@@ -48,27 +61,95 @@
                 </div>
 
                 <div class="tab-pane fade" id="info">
-                    <form method="POST" action="/account/update">
+                    <form method="POST" action="/update" id="updateForm">
                         <div class="mb-3">
                             <label for="fullname" class="form-label">Họ và tên</label>
-                            <input type="text" class="form-control" id="fullname" name="fullname" value="{{currentUser.fullname}}">
+                            <input type="text" class="form-control" id="fullname" name="fullname" value="{{currentUser.fullname}}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{currentUser.username}}" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{currentUser.email}}" readonly>
+                            <input type="email" class="form-control" id="email" name="email" value="{{currentUser.email}}" disabled>
                         </div>
                         <div class="mb-3">
                             <label for="gender" class="form-label">Giới tính</label>
-                            <select class="form-select" id="gender" name="gender">
+                            <select class="form-select" id="gender" name="gender" disabled>
                                 <option value="male" {{#ifEquals currentUser.gender 'male'}}selected{{/ifEquals}}>Nam</option>
                                 <option value="female" {{#ifEquals currentUser.gender 'female'}}selected{{/ifEquals}}>Nữ</option>
                                 <option value="other" {{#ifEquals currentUser.gender 'other'}}selected{{/ifEquals}}>Khác</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                        <div class="mb-3 d-none" id="oldPasswordField">
+                            <label for="oldPassword" class="form-label">Mật khẩu cũ</label>
+                            <input type="password" class="form-control" id="oldPassword" name="oldPassword" value="" disabled>
+                        </div>
+                        <div class="mb-3 d-none" id="newPasswordField">
+                            <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" value="" disabled>
+                        </div>
+                        <div class="mb-3 d-none" id="confirmNewPasswordField">
+                            <label for="confirmNewPassword" class="form-label">Xác nhận mật khẩu mới</label>
+                            <input type="password" class="form-control" id="confirmNewPassword" name="confirmNewPassword" value="" disabled>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="editButton">Cập nhật</button>
+                        <button type="submit" class="btn btn-success d-none" id="saveButton">Lưu</button>
+                        <button type="button" class="btn btn-secondary d-none" id="cancelButton">Huỷ</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const editButton = document.getElementById('editButton');
+        const saveButton = document.getElementById('saveButton');
+        const cancelButton = document.getElementById('cancelButton');
+        const formFields = document.querySelectorAll('#updateForm input, #updateForm select');
+        const oldPasswordField = document.getElementById('oldPasswordField');
+        const newPasswordField = document.getElementById('newPasswordField');
+        const confirmNewPasswordField = document.getElementById('confirmNewPasswordField');
+        const oldPasswordInput = document.getElementById('oldPassword');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+
+        editButton.addEventListener('click', () => {
+            formFields.forEach(field => field.disabled = false);
+            editButton.classList.add('d-none');
+            saveButton.classList.remove('d-none');
+            cancelButton.classList.remove('d-none');
+            oldPasswordField.classList.remove('d-none');
+            newPasswordField.classList.remove('d-none');
+            confirmNewPasswordField.classList.remove('d-none');
+        });
+
+        cancelButton.addEventListener('click', () => {
+            formFields.forEach(field => field.disabled = true);
+            editButton.classList.remove('d-none');
+            saveButton.classList.add('d-none');
+            cancelButton.classList.add('d-none');
+            oldPasswordField.classList.add('d-none');
+            newPasswordField.classList.add('d-none');
+            confirmNewPasswordField.classList.add('d-none');
+        });
+
+        saveButton.addEventListener('click', (event) => {
+            if(newPasswordInput.value || confirmNewPasswordInput.value){
+                if(newPasswordInput.value !== confirmNewPasswordInput.value){
+                    event.preventDefault();
+                    notyf.error('Mật khẩu mới không khớp. Vui lòng kiểm tra lại.');
+                    return;
+                }
+                if(!oldPasswordInput.value){
+                    event.preventDefault();
+                    notyf.error('Vui lòng nhập mật khẩu cũ.');
+                    return;
+                }
+            }
+        });
+    });
+</script>

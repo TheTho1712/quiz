@@ -1,0 +1,26 @@
+<div class="container mt-4">
+    <h2>{{quiz.name}}</h2>
+    <p><strong>Mô tả:</strong> {{quiz.description}}</p>
+    <p><strong>Độ khó:</strong> {{quiz.difficulty}}</p>
+    <p><strong>Thời gian:</strong> {{quiz.duration}} phút</p>
+
+    <div class="mt-4">
+        {{#each quiz.questions}}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>Câu hỏi {{cong @index}}: {{this.questionText}}</h5>
+                    <ul>
+                        {{#each this.options}}
+                            <li>
+                                {{this}}
+                                {{#ifEquals ../correctAnswer this}}
+                                    <span class="badge bg-success">Đáp án đúng</span>
+                                {{/ifEquals}}
+                            </li>
+                        {{/each}}
+                    </ul>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+</div>

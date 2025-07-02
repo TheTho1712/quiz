@@ -37,6 +37,20 @@
         {{#if errorMessage}}
             notyf.error('{{{errorMessage}}}');
         {{/if}}
+
+        const successCookie = document.cookie.split('; ').find(row => row.startsWith('successMessage='));
+        if(successCookie){
+            const msg = decodeURIComponent(successCookie.split('=')[1]);
+            notyf.success(msg);
+            document.cookie = 'successMessage=; Max-Age=0; path=/';
+        }
+
+        const errorCookie = document.cookie.split('; ').find(row => row.startsWith('errorMessage='));
+        if(errorCookie){
+            const msg = decodeURIComponent(errorCookie.split('=')[1]);
+            notyf.error(msg);
+            document.cookie = 'errorMessage=; Max-Age=0; path=/';
+        }
     </script>
 
 </body>

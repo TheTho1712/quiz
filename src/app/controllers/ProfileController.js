@@ -103,24 +103,78 @@ class ProfileController{
             return res.redirect('/login');
         }
         try {
-            const user = await User.findById(req.session.user._id).lean();
+            const user = await User.findById(req.session.user._id);
             const quizHistory = await QuizHistory.find({ user: user._id })
                 .populate({
                     path: 'quiz',
                     select: 'name rating author'
                 })
                 .sort({ completedAt: -1 })
-                .lean();
 
             res.render('accounts/profile', {
                 currentUser: user,
                 quizHistory
             });
-        } catch(err){
-            console.error(err);
+        }catch(err){
             res.redirect('/');
         }
     }
-}
 
+    async updateProfile(req, res){
+        if(!req.session.user){
+            return res.redirect('/login');
+        }
+        try{
+            const userId = req.session.user._id;
+            const { fullname, username, email, gender, oldPassword, newPassword, confirmNewPassword } = req.body;
+
+            const user = await User.findById(userId);
+            if(!user){
+                req.session.errorMessage = 'Người dùng không tồn tại';
+                return res.redirect('/profile');
+            }
+            if(oldPassword){
+                const isMatch = await bcrypt.compare(oldPassword, user.password);
+                if(!isMatch){
+                    req.session.errorMessage = 'Mật khẩu cũ không đúng';
+                    return res.redirect('/profile');
+                }
+            }
+            if(newPassword || confirmNewPassword){
+                if(newPassword !== confirmNewPassword){
+                    req.session.errorMessage = 'Mật khẩu mới và xác nhận không khớp';
+                    return res.redirect('/profile');
+                }
+                const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+                user.password = hashedNewPassword;
+            }
+            user.fullname = fullname;
+            user.username = username;
+            user.email = email;
+            user.gender = gender;
+
+            await user.save();
+            if(newPassword){
+            res.cookie('successMessage', 'Mật khẩu đã được cập nhật thành công. Vui lòng đăng nhập lại.', {
+                maxAge: 5000,
+                path: '/',
+            });
+            req.session.destroy((err) => {
+                if(err){
+                    req.session.errorMessage = 'Có lỗi xảy ra khi đăng xuất';
+                    return res.redirect('/profile');
+                }
+                return res.redirect('/login');
+            });
+            return;
+        }
+            req.session.successMessage = 'Cập nhật thông tin cá nhân thành công';
+            res.redirect('/profile');
+        }catch(err){
+            console.error(err);
+            req.session.errorMessage = 'Có lỗi xảy ra khi cập nhật thông tin cá nhân';
+            return res.redirect('/profile');
+        }           
+    }
+}
 module.exports = new ProfileController();

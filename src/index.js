@@ -9,6 +9,7 @@ const app = express();
 const port = 3000;
 
 const route = require('./routes');
+const notyfToCookie = require('./app/middlewares/notyfToCookie');
 
 
 app.engine(
@@ -29,6 +30,9 @@ app.use(
     }),
 );
 
+app.use(notyfToCookie);
+
+
 app.use((req, res, next) => {
     res.locals.currentUser = req.session.user || null;
     res.locals.errorMessage = req.session.errorMessage;
@@ -37,6 +41,7 @@ app.use((req, res, next) => {
     delete req.session.successMessage;
     next();
 });
+
 
 const db = require('./config/db');
 const mongoose = require('./util/mongoose');

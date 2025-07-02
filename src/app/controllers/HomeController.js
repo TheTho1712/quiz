@@ -30,19 +30,6 @@ class HomeController {
         }
     }
 
-    async show(req, res){
-        try {
-            const quiz = await Quiz.findById(req.params.id);
-            if(!quiz){
-                return res.status(404).render('error', { errorMessage: 'Quiz không tồn tại' });
-            }
-            
-            res.render('play', { quiz: mongooseToObject(quiz) });
-        } catch(err){
-            res.render('error', { errorMessage: 'Đã xảy ra lỗi khi lấy quiz.' });
-        }
-    }
-
     async playQuiz(req, res){
         try {
             const quiz = await Quiz.findById(req.params.id);
@@ -93,8 +80,17 @@ class HomeController {
                 totalQuestions: totalQuestions,
             });
         } catch(err){
-            console.error(err);
             res.render('quiz-result', { errorMessage: 'Đã xảy ra lỗi khi nộp quiz.' });
+        }
+    }
+    async quizHistoryDetails(req, res) {
+        try {
+            const history = await QuizHistory.findById(req.params.id).populate('quiz');
+            res.render('quiz-history-detail', {
+                quiz: history.quiz.toObject(),
+            });
+        }catch(err){
+            res.render('error', { errorMessage: 'Đã xảy ra lỗi khi lấy chi tiết lịch sử quiz.' });
         }
     }
 }
