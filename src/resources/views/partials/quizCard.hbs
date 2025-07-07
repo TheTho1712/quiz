@@ -8,13 +8,13 @@
             {{/if}}
 
             <div class="play-button-overlay">
-                <a href="/quizzes/{{this._id}}" class="play-now-btn">Play Now</a>
+                <a href="/quizzes/{{this.id}}" class="play-now-btn">Play Now</a>
             </div>
         </div>
 
         <div class="card-body p-2">
             <h5 class="card-title mb-1">
-                <a href="/detail/{{this._id}}" class="text-dark quiz-link">{{this.name}}</a>
+                <a href="/detail/{{this.id}}" class="text-dark quiz-link">{{this.name}}</a>
             </h5>
             <div class="d-flex align-items-center">
                 <span class="rating me-2">{{this.rating}} <i class="fas fa-star"></i></span>

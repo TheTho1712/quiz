@@ -18,20 +18,20 @@
                     <tr>
                         <td>{{this.name}}</td>
                         <td>
-                            <span class="badge bg-{{#ifEquals this.difficulty 'easy'}}success{{else}}{{#ifEquals this.difficulty 'medium'}}warning{{else}}danger{{/ifEquals}}{{/ifEquals}}">
-                                {{this.difficulty}}
+                            <span class="badge bg-{{#ifEquals this.difficult 'easy'}}success{{else}}{{#ifEquals this.difficult 'medium'}}warning{{else}}danger{{/ifEquals}}{{/ifEquals}}">
+                                {{this.difficult}}
                             </span>
                         </td>
                         <td>
                             <i class="fas fa-star text-warning"></i> {{this.rating}}
                         </td>
                         <td>
-                            <form action="/quiz/restore/{{this._id}}" method="POST" style="display: inline;">
+                            <form action="/quiz/restore/{{this.id}}" method="POST" style="display: inline;">
                                 <button type="submit" class="btn btn-success btn-sm">
                                     <i class="fas fa-undo"></i> Khôi phục
                                 </button>
                             </form>
-                            <form action="/quiz/force-delete/{{this._id}}" method="POST" style="display: inline;">
+                            <form action="/quiz/force-delete/{{this.id}}" method="POST" style="display: inline;">
                                 <button type="submit" class="btn btn-danger btn-sm">
                                     <i class="fas fa-times"></i> Xóa vĩnh viễn
                                 </button>

@@ -1,4 +1,4 @@
-const Quiz = require('../models/Quiz');
+const { prisma } = require('../../config/db');
 
 class QuizController {
     create(req, res){
@@ -25,10 +25,26 @@ class QuizController {
                     }
                 });
             }
+            await prisma.quiz.create({
+                data: {
+                    name: formData.name,
+                    description: formData.description || null,
+                    rating: 0,
+                    image: formData.image || null,
+                    author: formData.author,
+                    duration: parseInt(formData.duration) || 0,
+                    genre: formData.genre || null,
+                    difficult: formData.difficult || 'medium',
+                    questions: {
+                        create: formData.questions.map(q => ({
+                            questionText: q.questionText,
+                            correctAnswer: q.correctAnswer,
+                            options: q.options
+                        }))
+                    }
+                }
+            });
 
-            const quiz = new Quiz(formData);
-            await quiz.save();
-            
             req.session.successMessage = 'Quiz đã được tạo thành công!';
             res.redirect('/quiz/list');
         } catch(err){
@@ -41,12 +57,20 @@ class QuizController {
 
     async list(req, res){
         try {
-            const currentUsername = req.session.user.username;
-            const quizzes = await Quiz.find({ author: currentUsername, deleted: false });
+            // const currentUsername = req.session.user.username;
+            const quizzes = await prisma.quiz.findMany({
+                where: {
+                    author: req.session.user.username,
+                    deleted: false,
+                },
+                orderBy: {
+                    createdAt: 'desc',
+                }
+            });
             const successMessage = req.session.successMessage;
             delete req.session.successMessage;
             res.render('list', {
-                quizzes: quizzes.map(quiz => quiz.toObject()),
+                quizzes: quizzes,
                 successMessage: successMessage,
             });
         } catch(err){
@@ -56,11 +80,18 @@ class QuizController {
 
     async edit(req, res){
         try {
-            const quiz = await Quiz.findById(req.params.id);
+            const quiz = await prisma.quiz.findUnique({
+                where: {
+                    id: parseInt(req.params.id)
+                },
+                include: {
+                    questions: true
+                }
+            });
             if (!quiz){
                 return res.status(404).render('error', { message: 'Quiz không tồn tại' });
             }
-            res.render('crud/edit', { quiz: quiz.toObject() });
+            res.render('crud/edit', { quiz });
         } catch (err) {
             res.render('error', { errorMessage: 'Đã xảy ra lỗi khi lấy thông tin quiz để chỉnh sửa.', });
         }
@@ -83,8 +114,25 @@ class QuizController {
                     }
                 });
             }
-
-            await Quiz.findByIdAndUpdate(quizId, updatedData, { new: true });
+            await prisma.quiz.update({
+            where: { id: parseInt(req.params.id) },
+                data: {
+                    name: updatedData.name,
+                    description: updatedData.description,
+                    image: updatedData.image,
+                    duration: parseInt(updatedData.duration),
+                    genre: updatedData.genre,
+                    difficult: updatedData.difficult,
+                    questions: {
+                        deleteMany: {},
+                        create: updatedData.questions.map(q => ({
+                            questionText: q.questionText,
+                            options: q.options,
+                            correctAnswer: q.correctAnswer
+                        }))
+                    }
+                }
+            });
             res.redirect('/quiz/list');
         } catch(err){
             console.error('Lỗi khi cập nhật quiz:', err);
@@ -97,8 +145,10 @@ class QuizController {
 
     async delete(req, res){
         try {
-            const quizId = req.params.id;
-            await Quiz.findByIdAndUpdate(quizId, { deleted: true });
+            await prisma.quiz.update({
+                where: { id: parseInt(req.params.id) },
+                data: { deleted: true }
+            });
 
             req.session.successMessage = 'Quiz đã được xóa thành công!';
             res.redirect('/quiz/list');
@@ -110,8 +160,9 @@ class QuizController {
 
     async forceDelete(req, res){
         try {
-            const quizId = req.params.id;
-            await Quiz.findByIdAndDelete(quizId);
+            await prisma.quiz.delete({
+                where: { id: parseInt(req.params.id) }
+            });
             req.session.successMessage = 'Quiz đã được xóa vĩnh viễn!';
             res.redirect('/quiz/list');
         } catch(err){
@@ -123,9 +174,18 @@ class QuizController {
     async deletedList(req, res){
         try {
             const currentUsername = req.session.user.username;
-            const quizzes = await Quiz.find({ author: currentUsername, deleted: true });
+            // const quizzes = await Quiz.find({ author: currentUsername, deleted: true });
+            const quizzes = await prisma.quiz.findMany({
+                where: {
+                    author: currentUsername,
+                    deleted: true,
+                },
+                orderBy: {
+                    createdAt: 'desc',
+                }
+            })
             res.render('deleted', {
-                quizzes: quizzes.map(quiz => quiz.toObject()),
+                quizzes,
             });
         } catch(err){
             res.render('error', { errorMessage: 'Đã xảy ra lỗi khi tải danh sách quiz đã xóa.' });
@@ -134,8 +194,11 @@ class QuizController {
 
     async restore(req, res){
         try {
-            const quizId = req.params.id;
-            await Quiz.findByIdAndUpdate(quizId, { deleted: false });
+            await prisma.quiz.update({
+                where: { id: parseInt(req.params.id) },
+                data: { deleted: false }
+            });
+            req.session.successMessage = 'Quiz đã được khôi phục thành công!';
             res.redirect('/quiz/list');
         } catch(err){
             req.session.errorMessage = 'Đã có lỗi xảy ra khi khôi phục quiz.';

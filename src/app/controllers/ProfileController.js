@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
-const User = require('../models/User');
-const QuizHistory = require('../models/QuizHistory');
+const { prisma } = require('../../config/db');
 
 class ProfileController{
 
@@ -11,7 +10,7 @@ class ProfileController{
     async login(req, res){
         const { email, password } = req.body;
         try {
-            const user = await User.findOne({ email });
+            const user = await prisma.user.findUnique({ where: { email } });
 
             if(!user){
                 req.session.errorMessage = 'Sai email hoặc mật khẩu';
@@ -26,7 +25,7 @@ class ProfileController{
             }
 
             req.session.user = {
-                _id: user._id,
+                id: user.id,
                 username: user.username,
                 fullname: user.fullname,
                 email: user.email,
@@ -55,8 +54,7 @@ class ProfileController{
                 req.session.errorMessage = 'Mật khẩu xác nhận không khớp';
                 return res.redirect('/register');
             }
-
-            const existingUser = await User.findOne({ email });
+            const existingUser = await prisma.user.findUnique({ where: { email } });
             if(existingUser){
                 req.session.errorMessage = 'Email đã tồn tại';
                 return res.redirect('/register');
@@ -64,14 +62,15 @@ class ProfileController{
 
             const hashedPassword = await bcrypt.hash(password, 10);
 
-            const user = new User({
-                fullname,
-                username,
-                email,
-                password: hashedPassword,
-                gender: gender || undefined
+            await prisma.user.create({
+                data: {
+                    fullname,
+                    username,
+                    email,
+                    password: hashedPassword,
+                    gender: gender || null
+                }
             });
-            await user.save();
 
             req.session.successMessage = 'Đăng ký thành công!';
             res.redirect('/login');
@@ -103,14 +102,20 @@ class ProfileController{
             return res.redirect('/login');
         }
         try {
-            const user = await User.findById(req.session.user._id);
-            const quizHistory = await QuizHistory.find({ user: user._id })
-                .populate({
-                    path: 'quiz',
-                    select: 'name rating author'
-                })
-                .sort({ completedAt: -1 })
-
+            const user = await prisma.user.findUnique({ where: { id: req.session.user.id } });
+            const quizHistory = await prisma.quizHistory.findMany({ 
+                where: { userId: user.id },
+                include: {
+                    quiz: {
+                        select: {
+                            name: true,
+                            rating: true,
+                            author: true,
+                        },
+                    },
+                },
+                orderBy: { completedAt: 'desc' },
+            });
             res.render('accounts/profile', {
                 currentUser: user,
                 quizHistory
@@ -121,60 +126,56 @@ class ProfileController{
     }
 
     async updateProfile(req, res){
-        if(!req.session.user){
-            return res.redirect('/login');
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if(!user){
+            req.session.errorMessage = 'Người dùng không tồn tại';
+            return res.redirect('/profile');
         }
-        try{
-            const userId = req.session.user._id;
-            const { fullname, username, email, gender, oldPassword, newPassword, confirmNewPassword } = req.body;
 
-            const user = await User.findById(userId);
-            if(!user){
-                req.session.errorMessage = 'Người dùng không tồn tại';
+        if(oldPassword){
+            const isMatch = await bcrypt.compare(oldPassword, user.password);
+            if (!isMatch) {
+                req.session.errorMessage = 'Mật khẩu cũ không đúng';
                 return res.redirect('/profile');
             }
-            if(oldPassword){
-                const isMatch = await bcrypt.compare(oldPassword, user.password);
-                if(!isMatch){
-                    req.session.errorMessage = 'Mật khẩu cũ không đúng';
-                    return res.redirect('/profile');
-                }
-            }
-            if(newPassword || confirmNewPassword){
-                if(newPassword !== confirmNewPassword){
-                    req.session.errorMessage = 'Mật khẩu mới và xác nhận không khớp';
-                    return res.redirect('/profile');
-                }
-                const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-                user.password = hashedNewPassword;
-            }
-            user.fullname = fullname;
-            user.username = username;
-            user.email = email;
-            user.gender = gender;
+        }
 
-            await user.save();
-            if(newPassword){
+        let updatedData = {
+            fullname,
+            username,
+            email,
+            gender,
+        };
+
+        if(newPassword){
+            if(newPassword !== confirmNewPassword){
+                req.session.errorMessage = 'Mật khẩu mới và xác nhận không khớp';
+                return res.redirect('/profile');
+            }
+            updatedData.password = await bcrypt.hash(newPassword, 10);
+        }
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: updatedData,
+        });
+
+        if(newPassword){
             res.cookie('successMessage', 'Mật khẩu đã được cập nhật thành công. Vui lòng đăng nhập lại.', {
                 maxAge: 5000,
                 path: '/',
             });
             req.session.destroy((err) => {
-                if(err){
+                if (err) {
                     req.session.errorMessage = 'Có lỗi xảy ra khi đăng xuất';
                     return res.redirect('/profile');
                 }
                 return res.redirect('/login');
             });
-            return;
-        }
+        } else {
             req.session.successMessage = 'Cập nhật thông tin cá nhân thành công';
             res.redirect('/profile');
-        }catch(err){
-            console.error(err);
-            req.session.errorMessage = 'Có lỗi xảy ra khi cập nhật thông tin cá nhân';
-            return res.redirect('/profile');
-        }           
+        }
     }
 }
 module.exports = new ProfileController();

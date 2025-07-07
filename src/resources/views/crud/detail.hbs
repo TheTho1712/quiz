@@ -15,13 +15,13 @@
                 <div class="col-md-8">
                     <p><strong>Mô tả:</strong> {{quiz.description}}</p>
                     <p><strong>Độ khó:</strong>
-                        {{#ifEquals quiz.difficulty 'easy'}}Dễ{{else}} {{#ifEquals quiz.difficulty 'medium'}}Vừa{{else}} {{#ifEquals quiz.difficulty 'hard'}}Khó{{else}} {{quiz.difficulty}}{{/ifEquals}}{{/ifEquals}}{{/ifEquals}}
+                        {{#ifEquals quiz.difficult 'easy'}}Dễ{{else}} {{#ifEquals quiz.difficult 'medium'}}Vừa{{else}} {{#ifEquals quiz.difficult 'hard'}}Khó{{else}} {{quiz.difficult}}{{/ifEquals}}{{/ifEquals}}{{/ifEquals}}
                     </p>
                     <p><strong>Thời gian:</strong> {{quiz.duration}} phút</p>
                     <p><strong>Thể loại:</strong> {{quiz.genre}}</p>
                     <p><strong>Đánh giá:</strong> <i class="fas fa-star text-warning"></i> {{quiz.rating}}</p>
                     <div class="mt-3">
-                        <a href="/quizzes/{{quiz._id}}" class="btn btn-primary">Play</a>
+                        <a href="/quizzes/{{quiz.id}}" class="btn btn-primary">Play</a>
                     </div>
                 </div>
             </div>

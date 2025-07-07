@@ -18,18 +18,18 @@
                     <tr>
                         <td>{{this.name}}</td>
                         <td>
-                            <span class="badge bg-{{#ifEquals this.difficulty 'easy'}}success{{else}}{{#ifEquals this.difficulty 'medium'}}warning{{else}}danger{{/ifEquals}}{{/ifEquals}}">
-                                {{this.difficulty}}
+                            <span class="badge bg-{{#ifEquals this.difficult 'easy'}}success{{else}}{{#ifEquals this.difficult 'medium'}}warning{{else}}danger{{/ifEquals}}{{/ifEquals}}">
+                                {{this.difficult}}
                             </span>
                         </td>
                         <td>
                             <i class="fas fa-star text-warning"></i> {{this.rating}}
                         </td>
                         <td>
-                            <a href="/quiz/edit/{{this._id}}" class="btn btn-warning btn-sm">
+                            <a href="/quiz/edit/{{this.id}}" class="btn btn-warning btn-sm">
                                 <i class="fas fa-edit"></i> Chỉnh sửa
                             </a>
-                            <form action="/quiz/delete/{{this._id}}" method="POST" style="display: inline;">
+                            <form action="/quiz/delete/{{this.id}}" method="POST" style="display: inline;">
                                 <button type="submit" class="btn btn-danger btn-sm">
                                     <i class="fas fa-trash"></i> Xóa
                                 </button>

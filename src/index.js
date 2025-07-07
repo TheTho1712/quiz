@@ -44,7 +44,7 @@ app.use((req, res, next) => {
 
 
 const db = require('./config/db');
-const mongoose = require('./util/mongoose');
+// const mongoose = require('./util/mongoose');
 
 db.connect();
 

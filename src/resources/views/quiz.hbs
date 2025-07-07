@@ -54,6 +54,7 @@
     let currentQuestionIndex = 0;
     let correctCount = 0;
     let questionAnswered = false;
+    const QUIZ_ID = {{quizId}};
     
     document.addEventListener('DOMContentLoaded', function(){
         loadQuizData();
@@ -61,7 +62,7 @@
 
     async function loadQuizData(){
         try {
-            const quizId = "{{quizId}}";
+            const quizId = QUIZ_ID;
             const response = await fetch(`/quizzes/${quizId}/data`);
             quizData = await response.json();
             
@@ -77,7 +78,7 @@
         document.getElementById('totalQuestions').textContent = quizData.questions.length;
         document.getElementById('totalQuestionsCount').textContent = quizData.questions.length;
         document.getElementById('totalQuestionsInput').value = quizData.questions.length;
-        document.getElementById('quizForm').action = `/quizzes/${quizData._id}/submit`;
+        document.getElementById('quizForm').action = `/quizzes/${quizData.id}/submit`;
     }
 
     function displayQuestion(index){

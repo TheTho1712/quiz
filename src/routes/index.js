@@ -5,7 +5,6 @@ const userAuth = require('../app/middlewares/userAuth');
 
 
 function route(app) {
-
     app.use('/quiz', userAuth, quizRouter);
     app.use('/', profileRouter);
     app.use('/', homeRouter);
