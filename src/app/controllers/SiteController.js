@@ -52,8 +52,6 @@ class SiteController {
             }
             await prisma.quizHistory.create({
                 data: {
-                    // user: req.session.user.id,
-                    // quiz: quiz.id,
                     user: { connect: { id: Number(req.session.user.id) } },
                     quiz: { connect: { id: quiz.id } },
                     correctCount,
