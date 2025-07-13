@@ -31,7 +31,7 @@ enum Difficult {
 }
 
 model User{
-    id          Int      @id @default(autoincrement())
+    id          Int         @id @default(autoincrement())
     fullname    String
     username    String
     email       String      @unique
@@ -39,10 +39,34 @@ model User{
     gender      Gender?
     avatar      String      @default("/img/default-avatar.png")
     role        Role        @default(user)
+    xp          Int         @default(0)
+    level       Int         @default(1)
     createdAt   DateTime    @default(now())
     updatedAt   DateTime    @updatedAt
 
     quizHistories QuizHistory[]
+    achievements UserAchievement[]
+}
+
+model Achievement {
+    id         Int          @id @default(autoincrement())
+    code       String       @unique
+    title      String
+    icon       String
+    levelReq   Int
+
+    users      UserAchievement[]
+}
+
+model UserAchievement {
+    id             Int          @id @default(autoincrement())
+    user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId         Int
+    achievement    Achievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+    achievementId  Int
+    unlockedAt     DateTime     @default(now())
+
+    @@unique([userId, achievementId])
 }
 
 model Quiz {
@@ -65,7 +89,7 @@ model Quiz {
 model Question {
     id            Int      @id @default(autoincrement())
     questionText  String
-    options       String[] // PostgreSQL hỗ trợ array kiểu này
+    options       String[]
     correctAnswer String
     quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
     quizId        Int

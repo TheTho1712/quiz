@@ -1,34 +1,69 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <img src="{{currentUser.avatar}}" class="rounded-circle mb-3" alt="Avatar" style="width: 100px; height: 100px; object-fit: cover;">
-                    <h5>{{currentUser.username}}</h5>
-                    <div class="role-area">
-                        <div class="role-icon">
-                            {{#ifEquals currentUser.role 'admin'}}
-                                <i class="fa-solid fa-shield-halved"></i>
-                            {{else ifEquals currentUser.role 'user'}}
-                                <i class="fa-solid fa-user"></i>
-                            {{/ifEquals}}
-                        </div>
+            <div class="card text-center">
+                <div class="card-body">
+                <img src="{{currentUser.avatar}}" class="rounded-circle mb-3" alt="Avatar" style="width:100px; height:100px; object-fit:cover;">
+                <h5>{{currentUser.username}}</h5>
+                <div class="mb-2">
+                    {{#ifEquals currentUser.role 'admin'}}
+                        <i class="fa-solid fa-shield-halved"></i> Admin
+                    {{else}}
+                        <i class="fa-solid fa-user"></i> User
+                    {{/ifEquals}}
+                </div>
+                
+                <p>Level: <strong>{{currentUser.level}}</strong></p>
+                <p>
+                    Danh hiệu hiện tại: 
+                    {{#if currentAchievement}}
+                        <span style="font-size: 1.2rem;">{{currentAchievement.icon}}</span>
+                        <strong>{{currentAchievement.title}}</strong>
+                    {{else}}
+                        <em>Chưa có</em>
+                    {{/if}}
+                </p>
+                <p>XP: <strong>{{currentUser.xp}}</strong></p>
+                <div class="progress mb-3" style="height: 20px;">
+                    <div class="progress-bar" role="progressbar" 
+                    style="width: {{xpProgress}}%;" 
+                    aria-valuenow="{{xpProgress}}" 
+                    aria-valuemin="0" 
+                    aria-valuemax="100">
+                    {{xpProgress}}%
                     </div>
                 </div>
+                </div>
+            </div>
+            <h5 class="mt-4">Danh hiệu đã mở khóa:</h5>
+            <div class="row">
+                {{#each achievements}}
+                    <div class="col-md-3 col-sm-4 col-6 text-center mb-4">
+                        <div class="card border-success">
+                            <div class="card-body">
+                                <div style="font-size: 2rem;">{{this.icon}}</div>
+                                <h6 class="mt-2">{{this.title}}</h6>
+                                <span class="badge bg-secondary">Level {{this.levelReq}}</span>
+                            </div>
+                        </div>
+                    </div>
+                {{else}}
+                    <p>Chưa có danh hiệu nào được mở khóa 😢</p>
+                {{/each}}
             </div>
         </div>
 
         <div class="col-md-8">
             <ul class="nav nav-tabs">
                 <li class="nav-item">
-                    <a class="nav-link active" id="history-tab" data-bs-toggle="tab" href="#history">Lịch sử làm quiz</a>
+                    <a class="nav-link active" id="info-tab" data-bs-toggle="tab" href="#info">Thông tin cá nhân</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="info-tab" data-bs-toggle="tab" href="#info">Thông tin cá nhân</a>
+                    <a class="nav-link" id="history-tab" data-bs-toggle="tab" href="#history">Lịch sử làm quiz</a>
                 </li>
             </ul>
             <div class="tab-content mt-3">
-                <div class="tab-pane fade show active" id="history">
+                <div class="tab-pane fade" id="history">
                     {{#if quizHistory.length}}
                         <table class="table table-bordered table-hover">
                             <thead class="table-primary">
@@ -46,11 +81,6 @@
                                         <td><i class="fas fa-star text-warning"></i> {{this.quiz.rating}}</td>
                                         <td>{{this.quiz.author}}</td>
                                         <td>{{this.correctCount}}/{{this.totalQuestions}}</td>
-                                        <td>
-                                            <a href="/quiz/history/{{this.id}}" class="btn btn-info btn-sm">
-                                                <i class="fas fa-eye"></i> Xem đáp án
-                                            </a>
-                                        </td>
                                     </tr>
                                 {{/each}}
                             </tbody>
@@ -60,7 +90,7 @@
                     {{/if}}
                 </div>
 
-                <div class="tab-pane fade" id="info">
+                <div class="tab-pane fade show active" id="info">
                     <form method="POST" action="/update" id="updateForm">
                         <div class="mb-3">
                             <label for="fullname" class="form-label">Họ và tên</label>

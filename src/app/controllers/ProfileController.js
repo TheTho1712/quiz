@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const { prisma } = require('../../config/db');
+const levelService = require('../services/levelService');
 
 class ProfileController{
 
@@ -102,7 +103,14 @@ class ProfileController{
             return res.redirect('/login');
         }
         try {
-            const user = await prisma.user.findUnique({ where: { id: req.session.user.id } });
+            const user = await prisma.user.findUnique({
+                where: { id: req.session.user.id },
+                include: {
+                    achievements: {
+                        include: { achievement: true }
+                    }
+                }
+            });
             const quizHistory = await prisma.quizHistory.findMany({ 
                 where: { userId: user.id },
                 include: {
@@ -116,9 +124,23 @@ class ProfileController{
                 },
                 orderBy: { completedAt: 'desc' },
             });
+
+            const { xpMin, xpMax, xpProgress } = levelService.calculateXPProgress(user.xp, user.level);
+
+            const allAchievements = await prisma.achievement.findMany();
+
+            const currentAchievement = allAchievements
+                .filter(a => a.levelReq <= user.level)
+                .sort((a, b) => b.levelReq - a.levelReq)[0];
+
             res.render('accounts/profile', {
                 currentUser: user,
-                quizHistory
+                quizHistory,
+                achievements: user.achievements.map(item => item.achievement),
+                xpProgress,
+                xpMin,
+                xpMax,
+                currentAchievement
             });
         }catch(err){
             res.redirect('/');
@@ -126,6 +148,8 @@ class ProfileController{
     }
 
     async updateProfile(req, res){
+        const userId = req.session.user.id;
+        const { fullname, username, email, gender, oldPassword, newPassword, confirmNewPassword } = req.body;
         const user = await prisma.user.findUnique({ where: { id: userId } });
         if(!user){
             req.session.errorMessage = 'Người dùng không tồn tại';

@@ -4,22 +4,73 @@ const { prisma } = require('../../config/db');
 class HomeController {
     async index(req, res){
         try {
+            const page = Number(req.query.page) || 1;
+            const bestPage = Number(req.query.bestPage) || 1;
+            const limit = 6;
+            const offset = (page - 1) * limit;
+            const bestOffset = (bestPage - 1) * limit;
+
+            const genreSlug = req.query.genre || 'all';
+
+            const genreMap = {
+                art: 'Art',
+                entertainment: 'Entertainment',
+                geography: 'Geography',
+                history: 'History',
+                science: 'Science',
+                sports: 'Sports',
+                music: 'Music',
+            };
+            const selectedGenre = genreMap[genreSlug];
+            if(genreSlug !== 'all' && selectedGenre){
+                const quizList = await prisma.quiz.findMany({
+                    where: {
+                        deleted: false,
+                        genre: selectedGenre,
+                    },
+                    orderBy: {
+                        createdAt: 'desc',
+                    }
+                });
+
+                return res.render('home', {
+                    quizList,
+                    genre: genreSlug
+                });
+            }
             const recentlyPublished = await prisma.quiz.findMany({
                 where: { deleted: false },
                 orderBy: { createdAt: 'desc' },
-                take: 6,
+                take: limit,
+                skip: offset,
             });
+
+            const totalPages = Math.ceil(
+                await prisma.quiz.count({ where: { deleted: false } }) / limit
+            );
+
             const rating = await prisma.quiz.findMany({
                 where: { deleted: false },
                 orderBy: { rating: 'desc' },
-                take: 6,
+                take: limit,
+                skip: bestOffset,
             });
-            res.render('home', {
+            const bestTotalPages = Math.ceil(
+                await prisma.quiz.count({ where: { deleted: false } }) / limit
+            );
+
+            return res.render('home', {
                 recentlyPublished,
                 rating,
+                currentPage: page,
+                bestPage,
+                totalPages,
+                bestTotalPages,
+                genre: genreSlug
             });
-        } catch(err){
-            res.render('home', { errorMessage: 'Đã xảy ra lỗi khi lấy danh sách quiz.' });
+        }catch (err) {
+            console.error(err);
+            res.render('home', { errorMessage: 'Đã xảy ra lỗi.' });
         }
     }
 
@@ -35,75 +86,6 @@ class HomeController {
             res.render('crud/detail', { quiz });
         } catch(err){
             res.render('error', { errorMessage: 'Đã xảy ra lỗi khi lấy chi tiết quiz.' });
-        }
-    }
-
-    async playQuiz(req, res){
-        try {
-            const quiz = await prisma.quiz.findUnique({
-                where: { id: Number(req.params.id) },
-                include: { questions: true }
-            });
-            if(!quiz){
-                return res.status(404).render('error', { errorMessage: 'Quiz không tồn tại' });
-            }
-            
-            res.render('quiz', { 
-                // quiz: mongooseToObject(quiz),
-                quiz,
-                quizId: req.params.id
-            });
-        } catch(err){
-            res.render('quiz', { errorMessage: 'Đã xảy ra lỗi khi lấy quiz.' });
-        }
-    }
-
-    async getQuizData(req, res){
-        try {
-            const quiz = await prisma.quiz.findUnique({
-                where: { id: Number(req.params.id) },
-                include: { questions: true }
-            });
-            if(!quiz){
-                return res.status(404).json({ errorMessage: 'Quiz không tồn tại' });
-            }
-            
-            // res.json(mongooseToObject(quiz));
-            res.json(quiz);
-        } catch(err){
-            res.status(500).json({ errorMessage: 'Đã xảy ra lỗi khi lấy dữ liệu quiz.' });
-        }
-    }
-
-    async submitQuiz(req, res){
-        try {
-            const correctCount = Number(req.body.correctCount) || 0;
-            const totalQuestions = Number(req.body.totalQuestions) || 0;
-
-            const quiz = await prisma.quiz.findUnique({
-                where: { id: Number(req.params.id) }
-            });
-            if(!quiz){
-                return res.status(404).render('error', { errorMessage: 'Quiz không tồn tại' });
-            }
-            await prisma.quizHistory.create({
-                data: {
-                    // user: req.session.user.id,
-                    // quiz: quiz.id,
-                    user: { connect: { id: Number(req.session.user.id) } },
-                    quiz: { connect: { id: quiz.id } },
-                    correctCount,
-                    totalQuestions,
-                }
-            });
-
-            res.render('quiz-result', { 
-                correctCount: correctCount,
-                totalQuestions: totalQuestions,
-            });
-        } catch(err){
-            console.error("Lỗi khi lưu quiz history:", err);
-            res.render('quiz-result', { errorMessage: 'Đã xảy ra lỗi khi nộp quiz.' });
         }
     }
 

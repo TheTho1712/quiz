@@ -8,15 +8,12 @@ class QuizController {
     async store(req, res){
         try {
             const formData = {...req.body};
-
             if(req.file){
                 formData.image = '/img/' + req.file.filename;
             }
-
             if(req.session.user){
                 formData.author = req.session.user.username;
             }
-
             if(formData.questions){
                 formData.questions.forEach(question => {
                     if (question.correctAnswerText) {

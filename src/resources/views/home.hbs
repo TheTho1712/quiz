@@ -1,15 +1,97 @@
-<div class="container mt-4">
-    <h3>Quiz mới</h3>
-    <div class="row row-cols-lg-3 g-4 mb-5">
-        {{#each recentlyPublished}}
-            {{> quizCard this}}
-        {{/each}}
-    </div>
-
-    <h3>Best Rating</h3>
-    <div class="row row-cols-lg-3 g-4 mb-5">
-        {{#each rating}}
-            {{> quizCard this}}
-        {{/each}}
-    </div>
+<div style="background-color: rgb(255, 255, 255); width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw;" class="py-2">
+  <div class="container d-flex justify-content-center gap-3 flex-wrap">
+    <a href="/?genre=all" class="tab-link flex-column text-center {{#ifEquals genre 'all'}}active{{/ifEquals}}">
+        <i class="fa-solid fa-house fa-2x mb-1"></i>Tất cả
+    </a>
+    <a href="/?genre=art" class="tab-link flex-column text-center {{#ifEquals genre 'art'}}active{{/ifEquals}}">
+        <i class="fa-solid fa-palette fa-2x mb-1"></i>Art
+    </a>
+    <a href="/?genre=entertainment" class="tab-link flex-column text-center {{#ifEquals genre 'entertainment'}}active{{/ifEquals}}">
+        <i class="fa-solid fa-star fa-2x mb-1"></i>Entertainment
+    </a>
+    <a href="/?genre=geography" class="tab-link flex-column text-center {{#ifEquals genre 'geography'}}active{{/ifEquals}}">
+        <i class="fa-solid fa-earth-oceania fa-2x mb-1"></i>Geography
+    </a>
+    <a href="/?genre=history" class="tab-link flex-column text-center {{#ifEquals genre 'history'}}active{{/ifEquals}}">
+        <i class="fa-solid fa-gopuram fa-2x mb-1"></i>History
+    </a>
+    <a href="/?genre=sports" class="tab-link flex-column text-center {{#ifEquals genre 'sports'}}active{{/ifEquals}}">
+        <i class="fa-solid fa-medal fa-2x mb-1"></i>Sports
+    </a>
+    <a href="/?genre=music" class="tab-link flex-column text-center {{#ifEquals genre 'music'}}active{{/ifEquals}}">
+        <i class="fa-solid fa-music fa-2x mb-1"></i>Music
+    </a>
+  </div>
 </div>
+
+<div class="container mt-4">
+    {{#if quizList}}
+        <div class="row row-cols-lg-3 g-4 mb-5">
+            {{#each quizList}}
+                {{> quizCard this}}
+            {{/each}}
+        </div>
+    {{else}}
+        <h3>Quiz mới</h3>
+        <div class="row row-cols-lg-3 g-4 mb-5">
+            {{#each recentlyPublished}}
+                {{> quizCard this}}
+            {{/each}}
+        </div>
+
+        <div class="pagination d-flex justify-content-center mb-5">
+            {{#gt currentPage 1}}
+                <a href="?page={{subtract currentPage 1}}">Trước</a>
+            {{/gt}}
+
+            Trang {{currentPage}} / {{totalPages}}
+
+            {{#lt currentPage totalPages}}
+                <a href="?page={{add currentPage 1}}">Tiếp</a>
+            {{/lt}}
+        </div>
+
+        <h3>Best Rating</h3>
+        <div class="row row-cols-lg-3 g-4 mb-5">
+            {{#each rating}}
+                {{> quizCard this}}
+            {{/each}}
+        </div>
+        <div class="pagination d-flex justify-content-center mb-5">
+            {{#gt bestPage 1}}
+                <a href="?bestPage={{subtract bestPage 1}}">Trước</a>
+            {{/gt}}
+
+            Trang {{bestPage}} / {{bestTotalPages}}
+
+            {{#lt bestPage bestTotalPages}}
+                <a href="?bestPage={{add bestPage 1}}">Tiếp</a>
+            {{/lt}}
+        </div>
+    {{/if}}
+</div>
+
+<style>
+    .tab-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: white;
+  color: #333;
+  width: 100px;
+  height: 90px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.tab-link:hover {
+  background-color: #f0f0f0;
+}
+
+.tab-link.active {
+  background-color: #ffc;
+  font-weight: bold;
+}
+</style>
