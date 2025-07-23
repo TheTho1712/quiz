@@ -76,6 +76,8 @@ class HomeController {
 
     async details(req, res){
         try {
+            const quizId = Number(req.params.id);
+            const userId = req.session?.user?.id;
             const quiz = await prisma.quiz.findUnique({
                 where: { id: Number(req.params.id) },
                 include: { questions: true },
@@ -83,7 +85,18 @@ class HomeController {
             if(!quiz){
                 return res.status(404).render('error', { errorMessage: 'Quiz không tồn tại' });
             }
-            res.render('crud/detail', { quiz });
+            let isSaved = false;
+
+            if(userId){
+                const saved = await prisma.savedQuiz.findFirst({
+                    where: {
+                        quizId: quizId,
+                        userId: userId
+                    }
+                });
+                isSaved = !!saved;
+            }
+            res.render('crud/detail', { quiz, isSaved });
         } catch(err){
             res.render('error', { errorMessage: 'Đã xảy ra lỗi khi lấy chi tiết quiz.' });
         }

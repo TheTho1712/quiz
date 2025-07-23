@@ -5,6 +5,8 @@ const resize = require('../app/middlewares/resizeImage');
 
 const QuizController = require('../app/controllers/QuizController');
 
+router.post('/:id/save', QuizController.saveQuiz);
+router.post('/:id/unsave', QuizController.unsaveQuiz);
 router.get('/deleted-list', QuizController.deletedList);
 router.post('/restore/:id', QuizController.restore);
 router.post('/force-delete/:id', QuizController.forceDelete);

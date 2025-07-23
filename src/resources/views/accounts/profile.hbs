@@ -48,7 +48,7 @@
                         </div>
                     </div>
                 {{else}}
-                    <p>Chưa có danh hiệu nào được mở khóa 😢</p>
+                    <p>Chưa có danh hiệu nào được mở khóa!!!</p>
                 {{/each}}
             </div>
         </div>
@@ -60,6 +60,9 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="history-tab" data-bs-toggle="tab" href="#history">Lịch sử làm quiz</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="bookmark-tab" data-bs-toggle="tab" href="#bookmark">Quiz đã lưu</a>
                 </li>
             </ul>
             <div class="tab-content mt-3">
@@ -129,6 +132,34 @@
                         <button type="button" class="btn btn-secondary d-none" id="cancelButton">Huỷ</button>
                     </form>
                 </div>
+            </div>
+            <div class="tab-pane fade" id="bookmark">
+                {{#if savedQuizzes.length}}
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Tên Quiz</th>
+                                <th>Rating</th>
+                                <th>Tác giả</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each savedQuizzes}}
+                                <tr>
+                                    <td>{{this.name}}</td>
+                                    <td><i class="fas fa-star text-warning"></i> {{this.rating}}</td>
+                                    <td>{{this.author}}</td>
+                                    <td>
+                                        <a href="/detail/{{this.id}}" class="btn btn-info btn-sm">Xem</a>
+                                    </td>
+                                </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                {{else}}
+                    <p>Bạn chưa lưu quiz nào cả!!!</p>
+                {{/if}}
             </div>
         </div>
     </div>

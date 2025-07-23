@@ -90,13 +90,13 @@ class QuizController {
             }
             res.render('crud/edit', { quiz });
         } catch (err) {
-            res.render('error', { errorMessage: 'Đã xảy ra lỗi khi lấy thông tin quiz để chỉnh sửa.', });
+            res.session.errorMessage = 'Đã có lỗi xảy ra khi lấy thông tin quiz.';
+            console.error(err);
         }
     }
 
     async update(req, res){
         try {
-            const quizId = req.params.id;
             const updatedData = { ...req.body };
 
             if(req.file){
@@ -185,7 +185,8 @@ class QuizController {
                 quizzes,
             });
         } catch(err){
-            res.render('error', { errorMessage: 'Đã xảy ra lỗi khi tải danh sách quiz đã xóa.' });
+            res.session.errorMessage = 'Đã có lỗi xảy ra khi lấy danh sách quiz đã xóa.';
+            console.error(err);
         }
     }
 
@@ -200,6 +201,40 @@ class QuizController {
         } catch(err){
             req.session.errorMessage = 'Đã có lỗi xảy ra khi khôi phục quiz.';
             res.redirect('/quiz/deleted');
+        }
+    }
+
+    async saveQuiz(req, res){
+        const userId = req.session.user.id;
+        const quizId = parseInt(req.params.id);
+
+        try {
+            await prisma.savedQuiz.create({
+                data: { userId, quizId }
+            });
+            res.redirect(`/detail/${quizId}`);
+        }catch(err){
+            res.session.errorMessage = 'Lỗi khi lưu quiz';
+            console.error(err);
+            res.redirect(`/detail/${quizId}`);
+        }
+    }
+
+    async unsaveQuiz(req, res){
+        const userId = req.session.user.id;
+        const quizId = parseInt(req.params.id);
+
+        try {
+            await prisma.savedQuiz.delete({
+                where: {
+                    userId_quizId: { userId, quizId }
+                }
+            });
+            res.redirect(`/detail/${quizId}`);
+        }catch(err){
+            res.session.errorMessage = 'Lỗi khi bỏ lưu quiz';
+            console.error(err);
+            res.redirect(`/detail/${quizId}`);
         }
     }
 }

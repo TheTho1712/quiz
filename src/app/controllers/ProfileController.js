@@ -108,6 +108,9 @@ class ProfileController{
                 include: {
                     achievements: {
                         include: { achievement: true }
+                    },
+                    savedQuizzes: {
+                        include: { quiz: true }
                     }
                 }
             });
@@ -123,6 +126,7 @@ class ProfileController{
                     },
                 },
                 orderBy: { completedAt: 'desc' },
+                take: 6,
             });
 
             const { xpMin, xpMax, xpProgress } = levelService.calculateXPProgress(user.xp, user.level);
@@ -133,6 +137,7 @@ class ProfileController{
                 .filter(a => a.levelReq <= user.level)
                 .sort((a, b) => b.levelReq - a.levelReq)[0];
 
+            const savedQuizzes = user.savedQuizzes.map(item => item.quiz);
             res.render('accounts/profile', {
                 currentUser: user,
                 quizHistory,
@@ -140,7 +145,8 @@ class ProfileController{
                 xpProgress,
                 xpMin,
                 xpMax,
-                currentAchievement
+                currentAchievement,
+                savedQuizzes
             });
         }catch(err){
             res.redirect('/');

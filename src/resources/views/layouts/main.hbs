@@ -20,8 +20,9 @@
             <div class="container main-content">
                 {{{body}}}
             </div>
-
-            {{> footer}}
+            {{#unless hideFooter}}
+                {{> footer}}
+            {{/unless}}
         </div>
 
     <script>
