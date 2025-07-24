@@ -72,6 +72,18 @@
                                         <label class="form-label">Câu hỏi <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" name="questions[{{@index}}][questionText]" value="{{this.questionText}}" required>
                                     </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Video URL (YouTube)</label>
+                                        <input type="text" class="form-control" name="questions[{{@index}}][videoUrl]" value="{{this.videoUrl}}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Thời gian bắt đầu (giây)</label>
+                                        <input type="number" class="form-control" name="questions[{{@index}}][videoStart]" value="{{this.videoStart}}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Thời lượng video (giây)</label>
+                                        <input type="number" class="form-control" name="questions[{{@index}}][videoDuration]" value="{{this.videoDuration}}">
+                                    </div>
                                     {{#each this.options}}
                                         <div class="mb-3">
                                             <label class="form-label">Lựa chọn {{cong @index}}</label>

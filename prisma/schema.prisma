@@ -90,12 +90,15 @@ model Quiz {
 }
 
 model Question {
-    id            Int      @id @default(autoincrement())
-    questionText  String
-    options       String[]
-    correctAnswer String
-    quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
-    quizId        Int
+    id              Int      @id @default(autoincrement())
+    questionText    String
+    options         String[]
+    correctAnswer   String
+    quiz            Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+    quizId          Int
+    videoUrl        String?
+    videoStart      Int?
+    videoDuration   Int?
 }
 
 model QuizHistory {

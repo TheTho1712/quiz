@@ -60,10 +60,16 @@
                         <div class="card mb-3 question-card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="question-number">Câu hỏi 1</h5>
-                                <button type="button" class="btn btn-danger btn-sm remove-question">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <div class="d-flex align-items-center">
+                                    <button type="button" class="btn btn-primary btn-sm me-2 add-video-btn">
+                                        <i class="fas fa-video"></i> Thêm video
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm remove-question">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
+                            <div class="video-inputs-container"></div>
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label class="form-label">Câu hỏi <span class="text-danger">*</span></label>
@@ -173,6 +179,11 @@
                     notyf.error('Quiz phải có ít nhất một câu hỏi!');
                 }
             });
+            newQuestionCard.querySelector('.video-inputs-container').innerHTML = '';
+
+            newQuestionCard.querySelector('.add-video-btn').addEventListener('click', function () {
+                handleAddVideo(this);
+            });
         });
         
         document.querySelectorAll('.remove-question').forEach(button => {
@@ -184,6 +195,42 @@
                     notyf.error('Quiz phải có ít nhất một câu hỏi!');
                 }
             });
+        });
+
+        function handleAddVideo(button) {
+            const videoContainer = button.closest('.question-card').querySelector('.video-inputs-container');
+
+            if (videoContainer.innerHTML.trim() !== '') {
+                notyf.error('Bạn đã thêm video cho câu hỏi này rồi!');
+                return;
+            }
+
+            const index = Array.from(document.querySelectorAll('.question-card')).indexOf(button.closest('.question-card'));
+
+            const videoInputsHTML = `
+                <div class="card card-body bg-light mb-3">
+                    <div class="mb-3">
+                        <label class="form-label">Link YouTube <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="questions[${index}][videoUrl]" placeholder="https://www.youtube.com/watch?v=..." required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Start time (giây)</label>
+                            <input type="number" class="form-control" name="questions[${index}][videoStart]" min="0" value="0">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Duration (giây)</label>
+                            <input type="number" class="form-control" name="questions[${index}][videoDuration]" min="1" value="10">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            videoContainer.innerHTML = videoInputsHTML;
+        }
+
+        document.querySelectorAll('.add-video-btn').forEach(button => {
+            button.addEventListener('click', () => handleAddVideo(button));
         });
         
         document.getElementById('quizForm').addEventListener('submit', function(e){

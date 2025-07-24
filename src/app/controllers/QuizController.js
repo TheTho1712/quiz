@@ -36,9 +36,12 @@ class QuizController {
                         create: formData.questions.map(q => ({
                             questionText: q.questionText,
                             correctAnswer: q.correctAnswer,
-                            options: q.options
+                            options: q.options,
+                            videoUrl: q.videoUrl,
+                            videoStart: q.videoStart ? parseInt(q.videoStart) : null,
+                            videoDuration: q.videoDuration ? parseInt(q.videoDuration) : null,
                         }))
-                    }
+                    },
                 }
             });
 
@@ -49,6 +52,7 @@ class QuizController {
                 errorMessage: 'Đã có lỗi xảy ra khi tạo quiz. Vui lòng thử lại.',
                 formData: req.body
             });
+            console.log(err);
         }
     }
 
@@ -125,7 +129,10 @@ class QuizController {
                         create: updatedData.questions.map(q => ({
                             questionText: q.questionText,
                             options: q.options,
-                            correctAnswer: q.correctAnswer
+                            correctAnswer: q.correctAnswer,
+                            videoUrl: q.videoUrl,
+                            videoStart: q.videoStart ? parseInt(q.videoStart) : null,
+                            videoDuration: q.videoDuration ? parseInt(q.videoDuration) : null,
                         }))
                     }
                 }
